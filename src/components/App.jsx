@@ -9,11 +9,12 @@ class App extends Component {
     contacts: [],
     filter: '',
   };
-  constructor() {
-    super();
-    const savedContacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(savedContacts);
-    this.state.contacts = parsedContacts || [];
+
+  componentDidMount() {
+    const contacts = localStorage.getItem('contacts');
+    if (contacts) {
+      this.setState({ contacts: JSON.parse(contacts) });
+    }
   }
 
   addContact = event => {
@@ -50,8 +51,16 @@ class App extends Component {
       contacts: prevState.contacts.filter(contact => contact.id !== id),
     }));
   };
-  componentDidUpdate() {
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+
+  componentDidUpdate(prevState) {
+    const { contacts } = this.state;
+    if (contacts !== prevState.contacts) {
+      if (contacts.length === 0) {
+        localStorage.removeItem('contacts');
+      } else {
+        localStorage.setItem('contacts', JSON.stringify(contacts));
+      }
+    }
   }
 
   render() {
